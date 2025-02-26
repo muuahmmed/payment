@@ -14,7 +14,7 @@ class PaymentCubit extends Cubit<PaymentStates> {
       'api_key': AOIConstants.paymentKey,
     }).then((value) {
       AOIConstants.paymentFirstToken = value.data['token'];
-      print(AOIConstants.paymentFirstToken);
+      print('payment first token is ${AOIConstants.paymentFirstToken}');
       emit(PaymentSuccessState(value.data));
     }).catchError((error) {
       print(error.toString());
@@ -27,27 +27,28 @@ class PaymentCubit extends Cubit<PaymentStates> {
     required String lastName,
     required String email,
     required String phone,
-    required String address,
     required String price,
   }) async {
     emit(PaymentGetOrderRegistrationIdLoadingState());
     DioHelper.postData(url: AOIConstants.getOrderId, data: {
       'auth_token': AOIConstants.paymentFirstToken,
       'delivery_needed': 'false',
-      'amount_cents': price,
+      'amount_cents': int.parse(price) * 100,
       'currency': 'EGP',
       'items': [],
     }).then((value) {
+      // Ensure paymentOrderId is set correctly
+      AOIConstants.paymentOrderId = value.data['id'].toString();
+      print('Order ID: ${AOIConstants.paymentOrderId}');
+
+      // Call getPaymentRequest only after paymentOrderId is set
       getPaymentRequest(
         firstName: firstName,
         lastName: lastName,
         email: email,
         phone: phone,
-        address: address,
         price: price,
       );
-      AOIConstants.paymentOrderId = value.data['id'];
-      print(AOIConstants.paymentOrderId);
       emit(PaymentGetOrderRegistrationIdSuccessState(value.data));
     }).catchError((error) {
       print(error.toString());
@@ -60,15 +61,14 @@ class PaymentCubit extends Cubit<PaymentStates> {
     required String lastName,
     required String email,
     required String phone,
-    required String address,
     required String price,
   }) async {
     emit(PaymentGetPaymentRequestLoadingState());
     DioHelper.postData(url: AOIConstants.getPaymentId, data: {
       'auth_token': AOIConstants.paymentFirstToken,
-      'amount_cents': price,
+      'amount_cents': (int.parse(price) * 100).toString(), // Convert to String
       'expiration': 3600,
-      'order_id': AOIConstants.paymentOrderId,
+      'order_id': AOIConstants.paymentOrderId, // Ensure this is not empty
       'billing_data': {
         'apartment': 'NA',
         'floor': 'NA',
@@ -77,7 +77,6 @@ class PaymentCubit extends Cubit<PaymentStates> {
         'last_name': lastName,
         'email': email,
         'phone_number': phone,
-        'address': address,
         'building': '4055',
         'postal_code': '01898',
         'city': 'NA',
@@ -88,8 +87,8 @@ class PaymentCubit extends Cubit<PaymentStates> {
       'lock_order_when_paid': 'false',
       'integration_id': AOIConstants.integrationIdCart,
     }).then((value) {
-      AOIConstants.finalToken = value.data.token;
-      print(AOIConstants.finalToken);
+      AOIConstants.finalToken = value.data['token'];
+      print('Final Token: ${AOIConstants.finalToken}');
       emit(PaymentGetPaymentRequestSuccessState(value.data));
     }).catchError((error) {
       print(error.toString());

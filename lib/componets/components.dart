@@ -27,7 +27,6 @@ Widget defaultTextField({
   bool isClickable = true,
 }) {
   return TextFormField(
-
     controller: controller,
     keyboardType: type,
     obscureText: isPasssword,
@@ -35,17 +34,19 @@ Widget defaultTextField({
 
     decoration: InputDecoration(
       labelText: label,
-      labelStyle: const TextStyle(color: Colors.black), // Ensure label text is visible
-      prefixIcon: Icon(prefix, color: Colors.black), // Ensure icon color is visible
+      labelStyle:
+          const TextStyle(color: Colors.black), // Ensure label text is visible
+      prefixIcon:
+          Icon(prefix, color: Colors.black), // Ensure icon color is visible
       suffixIcon: suffix != null
           ? IconButton(
-        icon: Icon(suffix, color: Colors.black),
-        onPressed: () {
-          if (suffixPressed != null) {
-            suffixPressed();
-          }
-        },
-      )
+              icon: Icon(suffix, color: Colors.black),
+              onPressed: () {
+                if (suffixPressed != null) {
+                  suffixPressed();
+                }
+              },
+            )
           : null,
       border: const OutlineInputBorder(),
       filled: true,

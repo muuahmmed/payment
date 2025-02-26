@@ -20,6 +20,8 @@ class DioHelper {
     required String url,
     required Map<String, dynamic> data,
   }) async {
+    print('Sending request to: $url');
+    print('Request data: $data');
     return dio.post(
       url,
       data: data,
